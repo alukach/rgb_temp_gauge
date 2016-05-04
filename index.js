@@ -32,9 +32,10 @@ logging.debug("Configuring button");
 var button = new Gpio(BUTN_PIN, {
         mode: Gpio.INPUT,
         pullUpDown: Gpio.PUD_DOWN,
-        edge: Gpio.EITHER_EDGE
+        edge: Gpio.FALLING_EDGE
     });
 button.on('interrupt', function (level) {
+  logging.debug("Button state:", level);
   led.toggleIntensity();
 });
 
