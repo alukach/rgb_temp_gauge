@@ -11,7 +11,7 @@
   "dependencies": {
     "google-spreadsheet": "^2.0.1",
     "node-dht-sensor": "0.0.11",
-    "onoff": "^1.0.4",
+    "pigpio": "^0.3.3",
     "yargs": "^4.6.0"
   }
 }
