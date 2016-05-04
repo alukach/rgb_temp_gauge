@@ -3,7 +3,8 @@ var Gpio = require('pigpio').Gpio,
     config = require('./lib/cli'),
     led = require('./lib/led'),
     logging = require('./lib/logging'),
-    sheet;
+    sheet = require('./lib/sheet'),
+    phant = require('./lib/phant');
 
 if (config.sheetkey) {
     sheet = require('./lib/sheet')(config.sheetkey, config.google_keys);
@@ -43,7 +44,11 @@ button.on('interrupt', (level) => {
  * Sensor
  */
 logging.debug("Initializing sensor");
-if (sensor.initialize(TEMPSENSOR_PIN, {sheet: sheet, phant: config.phant_keys})) {
+var options = {
+    sheet: sheet.initialize(config.sheetkey, config.google_keys),
+    phant: phant.initialize(config.phant)
+}
+if (sensor.initialize(TEMPSENSOR_PIN, options)) {
     sensor.scheduleReading(INTERVAL * 1000);
 } else {
     throw new Error('Failed to initialize sensor');
