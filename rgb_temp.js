@@ -1,5 +1,5 @@
 var Gpio = require('pigpio').Gpio,
-//    Sensor = require('./lib/sensor'),
+    Sensor = require('./lib/sensor'),
     config = require('./lib/cli'),
     led = require('./lib/led'),
     logging = require('./lib/logging'),
@@ -36,7 +36,7 @@ var button = new Gpio(BUTN_PIN, {
     edge: Gpio.FALLING_EDGE
 });
 button.on('interrupt', (level) => {
-  logging.debug("Button state:", level);
+  //logging.debug("Button state:", level);
   led.toggleIntensity();
 });
 
@@ -48,5 +48,5 @@ var options = {
     sheet: sheet.initialize(config.sheetkey, config.google_keys),
     phant: phant.initialize(config.phant)
 }
-// var sensor = new Sensor(TEMPSENSOR_PIN, options).scheduleReading(INTERVAL * 1000);
+var sensor = new Sensor(TEMPSENSOR_PIN, options).scheduleReading(INTERVAL * 1000);
 
