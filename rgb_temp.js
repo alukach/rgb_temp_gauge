@@ -1,10 +1,10 @@
 var Gpio = require('pigpio').Gpio,
     Sensor = require('./lib/sensor'),
     config = require('./lib/cli'),
-    led = require('./lib/led'),
+    Led = require('./lib/led'),
     logging = require('./lib/logging'),
-    sheet = require('./lib/sheet'),
-    phant = require('./lib/phant');
+    Sheet = require('./lib/sheet'),
+    Phant = require('./lib/phant');
 
 if (config.sheetkey) {
     sheet = require('./lib/sheet')(config.sheetkey, config.google_keys);
@@ -24,7 +24,7 @@ const R_PIN = 25,
  * Lights
  */
 logging.debug("Initializing LED");
-led.initialize(R_PIN, G_PIN, B_PIN)
+var led = new Led(R_PIN, G_PIN, B_PIN);
 
 /*
  * Button
@@ -45,8 +45,8 @@ button.on('interrupt', (level) => {
  */
 logging.debug("Initializing sensor");
 var options = {
-    sheet: sheet.initialize(config.sheetkey, config.google_keys),
-    phant: phant.initialize(config.phant)
+    sheet: new Sheet(config.sheetkey, config.google_keys),
+    phant: new Phant(config.phant)
 }
 var sensor = new Sensor(TEMPSENSOR_PIN, options).scheduleReading(INTERVAL * 1000);
 
