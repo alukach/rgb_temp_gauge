@@ -1,5 +1,5 @@
 var Gpio = require('pigpio').Gpio,
-    sensor = require('./lib/sensor'),
+//    Sensor = require('./lib/sensor'),
     config = require('./lib/cli'),
     led = require('./lib/led'),
     logging = require('./lib/logging'),
@@ -48,8 +48,5 @@ var options = {
     sheet: sheet.initialize(config.sheetkey, config.google_keys),
     phant: phant.initialize(config.phant)
 }
-if (sensor.initialize(TEMPSENSOR_PIN, options)) {
-    sensor.scheduleReading(INTERVAL * 1000);
-} else {
-    throw new Error('Failed to initialize sensor');
-}
+// var sensor = new Sensor(TEMPSENSOR_PIN, options).scheduleReading(INTERVAL * 1000);
+
