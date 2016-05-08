@@ -1,3 +1,4 @@
+"use strict";
 var Gpio = require('pigpio').Gpio,
     Sensor = require('./lib/sensor'),
     config = require('./lib/cli'),
@@ -38,13 +39,22 @@ button.on('interrupt', (level) => {
 });
 
 /*
+ * Reading Handlers
+ */
+var sheet = (config.sheetkey) ? new Sheet(config.sheetkey, config.google_keys) : undefined;
+var phant = (config.phant) ? new Phant(config.phant) : undefined;
+var subtitles = (config.subtitle) ? require('./lib/subtitles') : undefined;
+function readingHandler (readout) {
+    let msg = `temperature: ${readout.temperature}\u00B0C, ` +
+              `humidity: ${readout.humidity}%`;
+    logging.info(msg);
+    if (subtitle) subtitle(readout);
+    if (sheet) sheet.upload(readout);
+    if (phant) phant.upload(readout);
+}
+
+/*
  * Sensor
  */
-logging.debug("Initializing sensor");
-var options = {
-    sheet: (config.sheetkey) ? new Sheet(config.sheetkey, config.google_keys) : undefined,
-    phant: (config.phant) ? new Phant(config.phant) : undefined
-}
-var sensor = new Sensor(TEMPSENSOR_PIN, options);
-sensor.scheduleReading(INTERVAL * 1000);
-
+var sensor = new Sensor(TEMPSENSOR_PIN);
+sensor.scheduleReading(INTERVAL * 1000, readingHandler);
