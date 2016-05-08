@@ -43,7 +43,7 @@ button.on('interrupt', (level) => {
  */
 var sheet = (config.sheetkey) ? new Sheet(config.sheetkey, config.google_keys) : undefined;
 var phant = (config.phant) ? new Phant(config.phant) : undefined;
-var subtitles = (config.subtitle) ? require('./lib/subtitles') : undefined;
+var subtitle = (config.subtitle) ? require('./lib/subtitle') : undefined;
 function readingHandler (readout) {
     let msg = `temperature: ${readout.temperature}\u00B0C, ` +
               `humidity: ${readout.humidity}%`;
