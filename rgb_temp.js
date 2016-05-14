@@ -48,7 +48,7 @@ function readingHandler (readout) {
     let msg = `Temperature: ${readout.temperature}\u00B0C, ` +
               `Humidity: ${readout.humidity}%`;
     logging.info(msg);
-    led.colorFromTemp(colorValue);
+    led.colorFromTemp(readout.temperature);
     if (subtitle) subtitle(readout);
     if (sheet) sheet.upload(readout);
     if (phant) phant.upload(readout);
