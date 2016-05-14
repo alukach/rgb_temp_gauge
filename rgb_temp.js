@@ -1,9 +1,9 @@
 "use strict";
 var Gpio = require('pigpio').Gpio,
-    Sensor = require('./lib/sensor'),
     config = require('./lib/cli'),
-    Led = require('./lib/led'),
     logging = require('./lib/logging'),
+    Led = require('./lib/led'),
+    Sensor = require('./lib/sensor'),
     Sheet = require('./lib/sheet'),
     Phant = require('./lib/phant');
 
@@ -34,8 +34,7 @@ var button = new Gpio(BUTN_PIN, {
     edge: Gpio.FALLING_EDGE
 });
 button.on('interrupt', (level) => {
-  logging.debug("Button state:", level);
-  led.toggleIntensity();
+  logging.debug("Luminosity:", led.toggleIntensity());
 });
 
 /*
@@ -44,10 +43,54 @@ button.on('interrupt', (level) => {
 var sheet = (config.sheetkey) ? new Sheet(config.sheetkey, config.google_keys) : undefined;
 var phant = (config.phant) ? new Phant(config.phant) : undefined;
 var subtitle = (config.subtitle) ? require('./lib/subtitle') : undefined;
+function colorPicker (t) {
+    // TODO: Refactor this, move into LED class
+    let goal_low = 18.2,
+        goal_high = 21.1,
+        step_size = .5;
+
+    if (t < goal_low - (step_size * 4)) {
+        return .4
+    } else
+    if (t < goal_low - (step_size * 3)) {
+        return .45
+    } else
+    if (t < goal_low - (step_size * 2)) {
+        return .5
+    } else
+    if (t < goal_low - step_size) {
+        return .55
+    } else
+    if (t < goal_low) {
+        return .6
+    } else
+    if ((goal_low < t) && (t < goal_high)) {
+        return .65
+    } else
+    if (t > goal_high + (step_size * 4)) {
+        return .999
+    } else
+    if (t > goal_high + (step_size * 3)) {
+        return .980
+    } else
+    if (t > goal_high + (step_size * 2)) {
+        return .965
+    } else
+    if (t > goal_high + step_size) {
+        return .9
+    } else
+    if (t > goal_high) {
+        return .8
+    }
+}
+
 function readingHandler (readout) {
-    let msg = `temperature: ${readout.temperature}\u00B0C, ` +
-              `humidity: ${readout.humidity}%`;
+    let msg = `Temperature: ${readout.temperature}\u00B0C, ` +
+              `Humidity: ${readout.humidity}%`;
     logging.info(msg);
+    let colorValue = colorPicker(readout.temperature);
+    logging.debug("Color value:", colorValue);
+    led.colorFromValue(colorValue);
     if (subtitle) subtitle(readout);
     if (sheet) sheet.upload(readout);
     if (phant) phant.upload(readout);
@@ -58,3 +101,4 @@ function readingHandler (readout) {
  */
 var sensor = new Sensor(TEMPSENSOR_PIN);
 sensor.scheduleReading(INTERVAL * 1000, readingHandler);
+
