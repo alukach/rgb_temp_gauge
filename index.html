@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Baby Room Temperature</title>
+    <!-- EXTERNAL LIBS-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//www.gstatic.com/charts/loader.js"></script>
+
+    <style media="screen">
+      html, body, #chart {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chart">Loading...</div>
+  </body>
+    <!--
+    EXAMPLE SCRIPT FROM PHANT.IO:
+    http://phant.io/graphing/google/2014/07/07/graphing-data/#example-chart
+    -->
+    <script>
+
+      // onload callback
+      function drawChart() {
+
+        var chartDiv = document.getElementById('chart');
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Time');
+        data.addColumn('number', 'Temperature');
+        data.addColumn('number', 'Humidity');
+
+        var public_key = 'q5Jyx863AYHAm9VmAlQR';
+        var materialOptions = {
+          chart: {
+            title: 'Baby Room Temperature and Humidity',
+            explorer: {
+              axis: 'horizontal',
+              keepInBounds: true,
+              maxZoomIn: 4.0
+            },
+          },
+          width: "100%",
+          // series: {
+          //   // Gives each series an axis name that matches the Y-axis below.
+          //   0: {axis: 'Temperature'},
+          //   1: {axis: 'Humidity'}
+          // },
+          axes: {
+            // Adds labels to each axis; they don't have to match the axis names.
+            y: {
+              Temperature: {label: 'Temperature (Celsius)'},
+              Humidity: {label: 'Humidity (%)'}
+            }
+          },
+        };
+        var tempFormatter = new google.visualization.NumberFormat(
+            {suffix: '\u00B0C', fractionDigits: 1});
+        var humidityFormatter = new google.visualization.NumberFormat(
+            {suffix: '%', fractionDigits: 1});
+
+        // JSONP request
+        var requests = [];
+        for (var i = 1; i <= 5; i++) {
+          console.log("requesting page", i);
+          requests.push($.ajax({
+            url: '//data.sparkfun.com/output/' + public_key + '.json',
+            data: {page: i},
+          }));
+        }
+        $.when.apply($, requests)
+          .then(function () {
+            console.log(arguments);
+            $.each(arguments, function (i, results_pkg) {
+              var results = results_pkg[0];
+              $.each(results, function (i, row) {
+                data.addRow([
+                  (new Date(row.timestamp)),
+                  parseFloat(row.temperature),
+                  parseFloat(row.humidity)
+                ]);
+              });
+            });
+
+            tempFormatter.format(data, 1);
+            humidityFormatter.format(data, 2);
+
+            var materialChart = new google.charts.Line(chartDiv);
+            materialChart.draw(data, materialOptions);
+          }
+        );
+      }
+
+      // load chart lib
+      google.charts.load('current', {
+        'packages': ['line', 'corechart']
+      });
+
+      // call drawChart once google charts is loaded
+      google.charts.setOnLoadCallback(drawChart);
+
+    </script>
+</html>
